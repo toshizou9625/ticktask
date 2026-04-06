@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); f=d.get(\\\"file_path\\\",\\\"\\\"); print(f)\" | grep -q \"\\.rs$\" && cd \"/Users/toshiki.hirata/Documents/CLAUDE APP/ticktask/src-tauri\" && cargo fmt --quiet 2>/dev/null || true'"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); f=d.get(\\\"file_path\\\",\\\"\\\"); print(f)\" | grep -qE \"\\.(tsx?|jsx?)$\" && cd \"/Users/toshiki.hirata/Documents/CLAUDE APP/ticktask\" && npx prettier --write \"$(echo \\\"$CLAUDE_TOOL_INPUT\\\" | python3 -c \\\"import sys,json; d=json.load(sys.stdin); print(d.get(\\\\\\\"file_path\\\\\\\",\\\\\\\"\\\\\\\"))\\\")\" 2>/dev/null || true'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import sys,json; d=json.load(sys.stdin); cmd=d.get(\\\"command\\\",\\\"\\\"); banned=[\\\"cargo publish\\\",\\\"npm publish\\\",\\\"rm -rf /\\\",\\\"rm -rf ~\\\"]; [sys.exit(2) for b in banned if b in cmd]\" 2>/dev/null || true'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'cd \"/Users/toshiki.hirata/Documents/CLAUDE APP/ticktask\" && cat > docs/SESSION-HANDOFF.md << EOF\n# Session Handoff\n\nLast updated: $(date)\n\n## Current Phase\n\nSee CLAUDE.md Development Phases for progress.\n\n## Last Actions\n\nSession ended. Check git log for recent changes.\n\n## Next Steps\n\nResume from the last incomplete phase in CLAUDE.md.\nEOF'"
+          }
+        ]
+      }
+    ]
+  }
+}
